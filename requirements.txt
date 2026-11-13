@@ -1,0 +1,10 @@
+streamlit
+plotly
+pandas
+sqlalchemy
+python-dotenv
+
+vanna==2.0.2
+chromadb
+google-generativeai
+google-cloud-aiplatform

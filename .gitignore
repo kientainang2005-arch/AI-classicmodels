@@ -1,0 +1,13 @@
+.env
+__pycache__/
+*.pyc
+streamlit.log
+.venv/
+
+# Vanna / ChromaDB vector store (rebuild with: python training/train.py)
+chroma.sqlite3
+*-*-*-*-*/
+
+
+# Vanna vector store (auto-built on first start)
+chroma_store/
