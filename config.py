@@ -11,20 +11,32 @@ except ImportError:
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 
+
+def _get(name: str, default: str = "") -> str:
+    """Environment variable first, then Streamlit secrets (used on Streamlit Cloud)."""
+    value = os.getenv(name)
+    if value:
+        return value
+    try:
+        import streamlit as st
+        return str(st.secrets.get(name, default))
+    except Exception:
+        return default
+
 # SQLite database, opened read-only by backend/db.py
-DB_PATH = os.getenv("DB_PATH", os.path.join(ROOT, "data", "classicmodels.db"))
+DB_PATH = _get("DB_PATH", os.path.join(ROOT, "data", "classicmodels.db"))
 
 # Vector store used by Vanna for RAG (rebuilt automatically if empty)
-VECTOR_STORE_PATH = os.getenv("VECTOR_STORE_PATH", os.path.join(ROOT, "chroma_store"))
+VECTOR_STORE_PATH = _get("VECTOR_STORE_PATH", os.path.join(ROOT, "chroma_store"))
 
 # Gemini: one key, or several separated by commas (used as fallback on quota errors)
-GEMINI_KEYS = [k.strip() for k in os.getenv("GEMINI_API_KEY", "").split(",") if k.strip()]
+GEMINI_KEYS = [k.strip() for k in _get("GEMINI_API_KEY").split(",") if k.strip()]
 # Models tried in order (each has its own free-tier quota)
-GEMINI_MODELS = [m.strip() for m in os.getenv("GEMINI_MODELS", "gemini-2.5-flash,gemini-3-flash-preview").split(",") if m.strip()]
+GEMINI_MODELS = [m.strip() for m in _get("GEMINI_MODELS", "gemini-2.5-flash,gemini-3-flash-preview").split(",") if m.strip()]
 GEMINI_MODEL = GEMINI_MODELS[0]
 
 if not GEMINI_KEYS:
-    raise RuntimeError("GEMINI_API_KEY is not set. Copy .env.example to .env and fill it in.")
+    raise RuntimeError("GEMINI_API_KEY is not set. Put it in .env (local) or in Streamlit Secrets (cloud).")
 
 # Tables the AI is allowed to query
 ALLOWED_TABLES = {
